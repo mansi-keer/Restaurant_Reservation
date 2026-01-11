@@ -18,6 +18,72 @@ mail = Mail(app)
 # Create upload folder if it doesn't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+# Initialize database on startup
+with app.app_context():
+    db.create_all()
+    
+    # Create admin user if not exists
+    if Admin.query.count() == 0:
+        admin = Admin(
+            username=app.config['ADMIN_USERNAME'],
+            email='admin@restaurant.com'
+        )
+        admin.set_password(app.config['ADMIN_PASSWORD'])
+        db.session.add(admin)
+        db.session.commit()
+    
+    # Create sample tables if not exists
+    if Table.query.count() == 0:
+        tables = [
+            Table(table_number=1, capacity=2, location='Window'),
+            Table(table_number=2, capacity=2, location='Window'),
+            Table(table_number=3, capacity=4, location='Indoor'),
+            Table(table_number=4, capacity=4, location='Indoor'),
+            Table(table_number=5, capacity=6, location='Indoor'),
+            Table(table_number=6, capacity=8, location='Patio'),
+            Table(table_number=7, capacity=4, location='Patio'),
+            Table(table_number=8, capacity=2, location='Indoor'),
+        ]
+        db.session.add_all(tables)
+        db.session.commit()
+    
+    # Create sample menu items if not exists
+    if MenuItem.query.count() == 0:
+        menu_items = [
+            MenuItem(name='Caesar Salad', description='Fresh romaine lettuce with parmesan and croutons', 
+                    price=12.99, category='appetizer', is_vegetarian=True,
+                    image_url='https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&q=80'),
+            MenuItem(name='Bruschetta', description='Toasted bread with tomatoes, garlic, and basil', 
+                    price=10.99, category='appetizer', is_vegan=True,
+                    image_url='https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=600&q=80'),
+            MenuItem(name='Grilled Salmon', description='Atlantic salmon with lemon butter sauce', 
+                    price=28.99, category='main', is_gluten_free=True,
+                    image_url='https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80'),
+            MenuItem(name='Ribeye Steak', description='12oz ribeye with garlic butter', 
+                    price=35.99, category='main', is_non_veg=True,
+                    image_url='https://images.unsplash.com/photo-1558030006-450675393462?w=600&q=80'),
+            MenuItem(name='Pasta Primavera', description='Fresh vegetables in creamy sauce', 
+                    price=22.99, category='main', is_vegetarian=True,
+                    image_url='https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80'),
+            MenuItem(name='Tiramisu', description='Classic Italian dessert', 
+                    price=8.99, category='dessert',
+                    image_url='https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=600&q=80'),
+            MenuItem(name='Chocolate Lava Cake', description='Warm chocolate cake with vanilla ice cream', 
+                    price=9.99, category='dessert', is_vegetarian=True,
+                    image_url='https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=600&q=80'),
+            MenuItem(name='House Wine', description='Red or white', 
+                    price=8.00, category='beverage',
+                    image_url='https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80'),
+            MenuItem(name='Sparkling Water', description='San Pellegrino', 
+                    price=4.00, category='beverage', is_vegan=True,
+                    image_url='https://images.unsplash.com/photo-1523362628745-0c100150b504?w=600&q=80'),
+            MenuItem(name='Chicken Tikka', description='Grilled chicken with Indian spices', 
+                    price=24.99, category='main', is_non_veg=True,
+                    image_url='https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&q=80'),
+        ]
+        db.session.add_all(menu_items)
+        db.session.commit()
+
 
 # Helper functions
 def is_admin_logged_in():
