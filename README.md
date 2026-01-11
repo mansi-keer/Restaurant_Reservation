@@ -2,6 +2,15 @@
 
 A complete restaurant management system with online reservations, menu management, and admin panel.
 
+## 🌐 Live Demo
+
+**Website:** https://restaurant-reservation-2-kv86.onrender.com/  
+**Admin Panel:** https://restaurant-reservation-2-kv86.onrender.com/admin/login
+
+**Admin Login:**
+- Username: `admin`
+- Password: `admin123`
+
 ## What Is This?
 
 This is a full-featured restaurant reservation system that allows:
