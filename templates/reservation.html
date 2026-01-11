@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Make a Reservation - {{ config.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container my-5 py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Make a Reservation</h2>
+                    <p class="text-center text-muted mb-4">Please fill out the form below to reserve your table</p>
+                    
+                    <form method="POST" id="reservationForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">First Name *</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone *</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="date" class="form-label">Date *</label>
+                                <input type="date" class="form-control" id="date" name="date" 
+                                       min="{{ min_date }}" max="{{ max_date }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="time" class="form-label">Time *</label>
+                                <input type="time" class="form-control" id="time" name="time" 
+                                       min="11:00" max="22:30" step="1800" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="party_size" class="form-label">Party Size *</label>
+                                <select class="form-select" id="party_size" name="party_size" required>
+                                    <option value="">Select...</option>
+                                    {% for i in range(config.MIN_PARTY_SIZE, config.MAX_PARTY_SIZE + 1) %}
+                                    <option value="{{ i }}">{{ i }} {{ 'Guest' if i == 1 else 'Guests' }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="special_requests" class="form-label">Special Requests</label>
+                            <textarea class="form-control" id="special_requests" name="special_requests" 
+                                      rows="3" placeholder="Dietary restrictions, occasion, seating preferences, etc."></textarea>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 
+                            You will receive a confirmation email after booking.
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-calendar-check"></i> Confirm Reservation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Reservation Policy</h5>
+                    <ul class="mb-0">
+                        <li>Reservations can be made up to {{ config.BOOKING_ADVANCE_DAYS }} days in advance</li>
+                        <li>Please arrive within 15 minutes of your reservation time</li>
+                        <li>For parties larger than {{ config.MAX_PARTY_SIZE }}, please call us directly</li>
+                        <li>Cancellations should be made at least 24 hours in advance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

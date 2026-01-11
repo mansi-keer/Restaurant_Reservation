@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Reservations - {{ config.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container my-5 py-5">
+    <h1 class="mb-4">Manage Reservations</h1>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status" onchange="this.form.submit()">
+                        <option value="all" {{ 'selected' if current_status == 'all' else '' }}>All</option>
+                        <option value="pending" {{ 'selected' if current_status == 'pending' else '' }}>Pending</option>
+                        <option value="approved" {{ 'selected' if current_status == 'approved' else '' }}>Approved</option>
+                        <option value="cancelled" {{ 'selected' if current_status == 'cancelled' else '' }}>Cancelled</option>
+                        <option value="completed" {{ 'selected' if current_status == 'completed' else '' }}>Completed</option>
+                        <option value="no-show" {{ 'selected' if current_status == 'no-show' else '' }}>No Show</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="date" name="date" onchange="this.form.submit()">
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Reservations Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Party</th>
+                            <th>Table</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in reservations %}
+                        <tr>
+                            <td>{{ reservation.id }}</td>
+                            <td>{{ reservation.customer.first_name }} {{ reservation.customer.last_name }}</td>
+                            <td>{{ reservation.customer.email }}</td>
+                            <td>{{ reservation.customer.phone }}</td>
+                            <td>{{ reservation.reservation_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ reservation.reservation_time.strftime('%H:%M') }}</td>
+                            <td>{{ reservation.party_size }}</td>
+                            <td>#{{ reservation.table.table_number }}</td>
+                            <td>
+                                {% if reservation.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif reservation.status == 'approved' %}
+                                <span class="badge bg-success">Approved</span>
+                                {% elif reservation.status == 'cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                                {% elif reservation.status == 'completed' %}
+                                <span class="badge bg-info">Completed</span>
+                                {% elif reservation.status == 'no-show' %}
+                                <span class="badge bg-secondary">No Show</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ reservation.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if reservation.status == 'pending' %}
+                                <form method="POST" action="{{ url_for('admin_approve_reservation', id=reservation.id) }}" 
+                                      style="display:inline;" onsubmit="return confirm('Approve this reservation?');">
+                                    <button type="submit" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin_cancel_reservation', id=reservation.id) }}" 
+                                      style="display:inline;" onsubmit="return confirm('Cancel this reservation?');">
+                                    <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cancel">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                                {% elif reservation.status in ['approved'] %}
+                                <form method="POST" action="{{ url_for('admin_cancel_reservation', id=reservation.id) }}" 
+                                      style="display:inline;" onsubmit="return confirm('Cancel this reservation?');">
+                                    <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Cancel">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if reservation.special_requests %}
+                        <tr>
+                            <td colspan="10" class="text-muted">
+                                <small><strong>Special Requests:</strong> {{ reservation.special_requests }}</small>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

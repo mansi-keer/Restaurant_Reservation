@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-overlay">
+        <div class="container h-100">
+            <div class="row h-100 align-items-center">
+                <div class="col-lg-10 mx-auto text-center text-white">
+                    <h1 class="display-3 fw-bold mb-4">{{ config.RESTAURANT_NAME }}</h1>
+                    <p class="lead mb-5" style="font-size: 1.3rem; font-style: italic; opacity: 0.95;">Where Culinary Artistry Meets Timeless Elegance</p>
+                    <div class="mt-5">
+                        <a href="{{ url_for('reservation') }}" class="btn btn-primary btn-lg me-3">Reserve Your Table</a>
+                        <a href="{{ url_for('menu') }}" class="btn btn-outline-light btn-lg">Explore Menu</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <div class="feature-box p-4">
+                    <i class="fas fa-utensils fa-3x mb-3"></i>
+                    <h4>Culinary Excellence</h4>
+                    <p>Our award-winning chefs create masterpieces using locally-sourced, seasonal ingredients</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-box p-4">
+                    <i class="fas fa-wine-glass fa-3x mb-3"></i>
+                    <h4>Sommelier Selection</h4>
+                    <p>Carefully curated wine list featuring rare vintages from around the world</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-box p-4">
+                    <i class="fas fa-concierge-bell fa-3x mb-3"></i>
+                    <h4>Impeccable Service</h4>
+                    <p>Personalized attention to every detail, creating unforgettable dining experiences</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Menu Items -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Featured Dishes</h2>
+        <div class="row">
+            {% for item in featured_items %}
+            <div class="col-md-4 mb-4">
+                <div class="card menu-card h-100">
+                    <img src="{{ item.image_url or 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80' }}" 
+                         class="card-img-top" alt="{{ item.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.name }}</h5>
+                        <p class="card-text">{{ item.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h5 text-primary mb-0">${{ "%.2f"|format(item.price) }}</span>
+                            {% if item.is_vegetarian %}
+                            <span class="badge bg-success">Vegetarian</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('menu') }}" class="btn btn-primary">View Full Menu</a>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80" 
+                     class="img-fluid rounded shadow" alt="Restaurant Interior">
+            </div>
+            <div class="col-md-6">
+                <h2 class="mb-4">Our Story</h2>
+                <p class="lead" style="color: var(--primary-color); font-size: 1.1rem;">Crafting memorable moments since 2015</p>
+                <p style="line-height: 1.8; color: #555;">{{ config.RESTAURANT_NAME }} emerged from a passion for authentic flavors and refined hospitality. Our culinary team, led by Executive Chef Marco Delacroix, brings together classical French techniques with contemporary innovation.</p>
+                <p style="line-height: 1.8; color: #555;">Every dish tells a story, every ingredient is thoughtfully selected, and every meal is an experience to remember. We partner with local farmers and artisans to ensure the freshest, highest quality ingredients grace your plate.</p>
+                <a href="{{ url_for('about') }}" class="btn btn-outline-primary mt-3">Discover Our Journey</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 text-white">
+    <div class="container text-center" style="position: relative; z-index: 1;">
+        <h2 class="mb-4">Begin Your Culinary Journey</h2>
+        <p class="lead mb-5" style="font-size: 1.2rem; color: rgba(255,255,255,0.9);">Reservations are filling quickly. Secure your table for an evening of exceptional dining.</p>
+        <a href="{{ url_for('reservation') }}" class="btn btn-light btn-lg" style="color: var(--secondary-color); font-weight: 600;">Reserve Your Table</a>
+    </div>
+</section>
+{% endblock %}

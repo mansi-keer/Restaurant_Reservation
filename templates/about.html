@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - {{ config.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container my-5 py-5">
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="mb-4">About {{ config.RESTAURANT_NAME }}</h1>
+            <p class="lead">A culinary journey of excellence and tradition</p>
+        </div>
+    </div>
+    
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80" 
+                 class="img-fluid rounded shadow" alt="Restaurant Interior">
+        </div>
+        <div class="col-md-6">
+            <h2>Our Story</h2>
+            <p>Founded in 2015, {{ config.RESTAURANT_NAME }} has been a cornerstone of fine dining in the community. 
+               Our passion for exceptional cuisine and impeccable service has earned us a reputation as one of the 
+               finest restaurants in the region.</p>
+            <p>Our team of talented chefs brings together years of culinary expertise, creating innovative dishes 
+               that honor traditional flavors while embracing modern techniques.</p>
+        </div>
+    </div>
+    
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6 order-md-2">
+            <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&q=80" 
+                 class="img-fluid rounded shadow" alt="Our Chef">
+        </div>
+        <div class="col-md-6 order-md-1">
+            <h2>Our Philosophy</h2>
+            <p>We believe that dining is more than just eating—it's an experience. Every dish we prepare is 
+               crafted with locally-sourced, seasonal ingredients to ensure the highest quality and freshness.</p>
+            <p>Our commitment to sustainability and supporting local farmers is reflected in every aspect of 
+               our menu. We take pride in creating memorable experiences for our guests.</p>
+        </div>
+    </div>
+    
+    <div class="row text-center mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="p-4">
+                <i class="fas fa-award fa-3x text-primary mb-3"></i>
+                <h4>Award Winning</h4>
+                <p>Recognized for culinary excellence</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="p-4">
+                <i class="fas fa-heart fa-3x text-primary mb-3"></i>
+                <h4>Passion for Food</h4>
+                <p>Every dish made with love and care</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="p-4">
+                <i class="fas fa-leaf fa-3x text-primary mb-3"></i>
+                <h4>Sustainable</h4>
+                <p>Locally sourced, environmentally conscious</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center">
+        <h2 class="mb-4">Visit Us Today</h2>
+        <p class="mb-4">Experience the difference at {{ config.RESTAURANT_NAME }}</p>
+        <a href="{{ url_for('reservation') }}" class="btn btn-primary btn-lg">Make a Reservation</a>
+    </div>
+</div>
+{% endblock %}

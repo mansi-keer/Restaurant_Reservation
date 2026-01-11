@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Reservation Confirmed - {{ config.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container my-5 py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-body p-5 text-center">
+                    <div class="success-icon mb-4">
+                        {% if reservation.status == 'pending' %}
+                        <i class="fas fa-clock fa-5x text-warning"></i>
+                        {% else %}
+                        <i class="fas fa-check-circle fa-5x text-success"></i>
+                        {% endif %}
+                    </div>
+                    {% if reservation.status == 'pending' %}
+                    <h2 class="mb-4">Reservation Request Received!</h2>
+                    <p class="lead">Your reservation is pending approval from {{ config.RESTAURANT_NAME }}</p>
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-info-circle"></i> 
+                        We will review your request and send you a confirmation email shortly.
+                    </div>
+                    {% else %}
+                    <h2 class="mb-4">Reservation Confirmed!</h2>
+                    <p class="lead">Thank you for choosing {{ config.RESTAURANT_NAME }}</p>
+                    <p class="text-success fw-bold fs-5">
+                        Your table is reserved for {{ reservation.reservation_date.strftime('%B %d, %Y') }} at {{ reservation.reservation_time.strftime('%I:%M %p') }}
+                    </p>
+                    {% endif %}
+                    
+                    <div class="reservation-details mt-5 p-4 bg-light rounded">
+                        <h4 class="mb-4">Reservation Details</h4>
+                        <div class="row text-start">
+                            <div class="col-md-6 mb-3">
+                                <strong><i class="fas fa-user"></i> Name:</strong><br>
+                                {{ reservation.customer.first_name }} {{ reservation.customer.last_name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong><i class="fas fa-envelope"></i> Email:</strong><br>
+                                {{ reservation.customer.email }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong><i class="fas fa-calendar"></i> Date:</strong><br>
+                                {{ reservation.reservation_date.strftime('%B %d, %Y') }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong><i class="fas fa-clock"></i> Time:</strong><br>
+                                {{ reservation.reservation_time.strftime('%I:%M %p') }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong><i class="fas fa-users"></i> Party Size:</strong><br>
+                                {{ reservation.party_size }} {{ 'Guest' if reservation.party_size == 1 else 'Guests' }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong><i class="fas fa-chair"></i> Table:</strong><br>
+                                Table #{{ reservation.table.table_number }}
+                            </div>
+                            {% if reservation.special_requests %}
+                            <div class="col-12 mb-3">
+                                <strong><i class="fas fa-comment"></i> Special Requests:</strong><br>
+                                {{ reservation.special_requests }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-envelope"></i> 
+                        A confirmation email has been sent to {{ reservation.customer.email }}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary me-2">Back to Home</a>
+                        <a href="{{ url_for('menu') }}" class="btn btn-outline-primary">View Menu</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

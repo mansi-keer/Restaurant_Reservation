@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Messages - {{ config.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container my-5 py-5">
+    <h1 class="mb-4">Contact Messages</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if messages|length == 0 %}
+            <p class="text-muted">No contact messages yet.</p>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Status</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in messages %}
+                        <tr class="{% if not message.is_read %}table-primary{% endif %}">
+                            <td>{{ message.id }}</td>
+                            <td>
+                                {% if message.is_read %}
+                                    <span class="badge bg-secondary">Read</span>
+                                {% else %}
+                                    <span class="badge bg-info">New</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ message.name }}</td>
+                            <td>{{ message.email }}</td>
+                            <td>{{ message.subject }}</td>
+                            <td>{{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#messageModal{{ message.id }}">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                {% if not message.is_read %}
+                                <a href="{{ url_for('admin_mark_message_read', message_id=message.id) }}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-check"></i> Mark Read
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        
+                        <!-- Message Modal -->
+                        <div class="modal fade" id="messageModal{{ message.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">{{ message.subject }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>From:</strong> {{ message.name }} ({{ message.email }})</p>
+                                        <p><strong>Date:</strong> {{ message.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                                        <hr>
+                                        <p style="white-space: pre-wrap;">{{ message.message }}</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="mailto:{{ message.email }}" class="btn btn-primary">
+                                            <i class="fas fa-reply"></i> Reply via Email
+                                        </a>
+                                        {% if not message.is_read %}
+                                        <a href="{{ url_for('admin_mark_message_read', message_id=message.id) }}" class="btn btn-success">
+                                            <i class="fas fa-check"></i> Mark as Read
+                                        </a>
+                                        {% endif %}
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

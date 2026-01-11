@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Tables - {{ config.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container my-5 py-5">
+    <h1 class="mb-4">Manage Tables</h1>
+    
+    <!-- Add Table Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Add New Table</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin_add_table') }}" class="row g-3">
+                <div class="col-md-3">
+                    <label for="table_number" class="form-label">Table Number</label>
+                    <input type="number" class="form-control" id="table_number" name="table_number" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="capacity" class="form-label">Capacity</label>
+                    <input type="number" class="form-control" id="capacity" name="capacity" min="1" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="location" class="form-label">Location</label>
+                    <select class="form-select" id="location" name="location" required>
+                        <option value="Indoor">Indoor</option>
+                        <option value="Window">Window</option>
+                        <option value="Patio">Patio</option>
+                        <option value="Private">Private Room</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-plus"></i> Add Table
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tables List -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Table Number</th>
+                            <th>Capacity</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for table in tables %}
+                        <tr>
+                            <td><strong>#{{ table.table_number }}</strong></td>
+                            <td>{{ table.capacity }} {{ 'person' if table.capacity == 1 else 'people' }}</td>
+                            <td>{{ table.location }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if table.is_available else 'danger' }}">
+                                    {{ 'Available' if table.is_available else 'Unavailable' }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin_toggle_table', table_id=table.id) }}" 
+                                   class="btn btn-sm btn-{{ 'warning' if table.is_available else 'success' }}" 
+                                   title="{{ 'Mark Unavailable' if table.is_available else 'Mark Available' }}">
+                                    <i class="fas fa-{{ 'ban' if table.is_available else 'check' }}"></i>
+                                </a>
+                                <button class="btn btn-sm btn-info ms-1" data-bs-toggle="modal" 
+                                        data-bs-target="#editTableModal{{ table.id }}" title="Edit Table">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Edit Table Modal -->
+                        <div class="modal fade" id="editTableModal{{ table.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Table #{{ table.table_number }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST" action="{{ url_for('admin_edit_table', table_id=table.id) }}">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="table_number{{ table.id }}" class="form-label">Table Number</label>
+                                                <input type="number" class="form-control" id="table_number{{ table.id }}" 
+                                                       name="table_number" value="{{ table.table_number }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="capacity{{ table.id }}" class="form-label">Capacity</label>
+                                                <input type="number" class="form-control" id="capacity{{ table.id }}" 
+                                                       name="capacity" value="{{ table.capacity }}" min="1" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="location{{ table.id }}" class="form-label">Location</label>
+                                                <select class="form-select" id="location{{ table.id }}" name="location" required>
+                                                    <option value="Indoor" {{ 'selected' if table.location == 'Indoor' else '' }}>Indoor</option>
+                                                    <option value="Window" {{ 'selected' if table.location == 'Window' else '' }}>Window</option>
+                                                    <option value="Patio" {{ 'selected' if table.location == 'Patio' else '' }}>Patio</option>
+                                                    <option value="Private" {{ 'selected' if table.location == 'Private' else '' }}>Private Room</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

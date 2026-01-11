@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Menu - {{ config.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container my-5 py-5">
+    <h1 class="mb-4">Manage Menu</h1>
+    
+    <!-- Add Menu Item Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Add New Menu Item</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin_add_menu_item') }}" enctype="multipart/form-data">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="appetizer">Appetizer</option>
+                            <option value="main">Main Course</option>
+                            <option value="dessert">Dessert</option>
+                            <option value="beverage">Beverage</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="image" class="form-label">Image (Optional)</label>
+                        <div id="imagePreviewNew" class="mb-2"></div>
+                        <input type="file" class="form-control mb-2" id="image" name="image" accept="image/*">
+                        <input type="hidden" id="autoFetchedUrlNew" name="auto_fetched_url">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="fetchAndPreviewImageNew()">
+                            <i class="fas fa-cloud-download-alt"></i> Fetch Image Preview
+                        </button>
+                        <small class="text-muted d-block mt-2">Enter name first, then fetch image to preview</small>
+                    </div>
+                    
+                    <script>
+                    function fetchAndPreviewImageNew() {
+                        const itemName = document.getElementById('name').value;
+                        if (!itemName) {
+                            alert('Please enter the dish name first');
+                            return;
+                        }
+                        
+                        const previewDiv = document.getElementById('imagePreviewNew');
+                        previewDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Fetching image...';
+                        
+                        fetch('/api/fetch-food-image?name=' + encodeURIComponent(itemName))
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success && data.url) {
+                                    previewDiv.innerHTML = '<img src="' + data.url + '" alt="' + itemName + '" style="max-height: 150px; border-radius: 8px;"><small class="text-muted d-block">Preview - Click Add Menu Item to save</small>';
+                                    document.getElementById('autoFetchedUrlNew').value = data.url;
+                                } else {
+                                    previewDiv.innerHTML = '<div class="alert alert-warning">Could not fetch image. Try uploading manually.</div>';
+                                }
+                            })
+                            .catch(error => {
+                                previewDiv.innerHTML = '<div class="alert alert-danger">Error fetching image</div>';
+                            });
+                    }
+                    </script>
+                    <div class="col-md-6">
+                        <label class="form-label">Dietary Options</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="is_vegetarian" name="is_vegetarian">
+                                <label class="form-check-label" for="is_vegetarian">Vegetarian</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="is_vegan" name="is_vegan">
+                                <label class="form-check-label" for="is_vegan">Vegan</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="is_gluten_free" name="is_gluten_free">
+                                <label class="form-check-label" for="is_gluten_free">Gluten Free</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="is_non_veg" name="is_non_veg">
+                                <label class="form-check-label" for="is_non_veg">Non-Veg</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Menu Item
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Menu Items List -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Tags</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td><strong>{{ item.name }}</strong></td>
+                            <td>{{ item.description[:50] }}...</td>
+                            <td>{{ item.category }}</td>
+                            <td>${{ "%.2f"|format(item.price) }}</td>
+                            <td>
+                                {% if item.is_vegetarian %}
+                                <span class="badge bg-success">V</span>
+                                {% endif %}
+                                {% if item.is_vegan %}
+                                <span class="badge bg-success">VG</span>
+                                {% endif %}
+                                {% if item.is_gluten_free %}
+                                <span class="badge bg-info">GF</span>
+                                {% endif %}
+                                {% if item.is_non_veg %}
+                                <span class="badge bg-danger">Non-Veg</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if item.is_available else 'secondary' }}">
+                                    {{ 'Available' if item.is_available else 'Unavailable' }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin_toggle_menu', item_id=item.id) }}" 
+                                   class="btn btn-sm btn-{{ 'warning' if item.is_available else 'success' }}" 
+                                   title="{{ 'Mark Unavailable' if item.is_available else 'Mark Available' }}">
+                                    <i class="fas fa-{{ 'ban' if item.is_available else 'check' }}"></i>
+                                </a>
+                                <button class="btn btn-sm btn-info ms-1" data-bs-toggle="modal" 
+                                        data-bs-target="#editMenuModal{{ item.id }}" title="Edit Item">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Edit Menu Item Modal -->
+                        <div class="modal fade" id="editMenuModal{{ item.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Menu Item</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST" action="{{ url_for('admin_edit_menu', item_id=item.id) }}" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label for="name{{ item.id }}" class="form-label">Name</label>
+                                                    <input type="text" class="form-control" id="name{{ item.id }}" 
+                                                           name="name" value="{{ item.name }}" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label for="price{{ item.id }}" class="form-label">Price</label>
+                                                    <input type="number" class="form-control" id="price{{ item.id }}" 
+                                                           name="price" value="{{ item.price }}" step="0.01" min="0" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label for="category{{ item.id }}" class="form-label">Category</label>
+                                                    <select class="form-select" id="category{{ item.id }}" name="category" required>
+                                                        <option value="appetizer" {{ 'selected' if item.category == 'appetizer' else '' }}>Appetizer</option>
+                                                        <option value="main" {{ 'selected' if item.category == 'main' else '' }}>Main Course</option>
+                                                        <option value="dessert" {{ 'selected' if item.category == 'dessert' else '' }}>Dessert</option>
+                                                        <option value="beverage" {{ 'selected' if item.category == 'beverage' else '' }}>Beverage</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label for="description{{ item.id }}" class="form-label">Description</label>
+                                                    <textarea class="form-control" id="description{{ item.id }}" 
+                                                              name="description" rows="3">{{ item.description }}</textarea>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label for="image{{ item.id }}" class="form-label">Image</label>
+                                                    <div id="imagePreview{{ item.id }}" class="mb-2">
+                                                        {% if item.image_url %}
+                                                        <img src="{{ item.image_url }}" alt="{{ item.name }}" style="max-height: 150px; border-radius: 8px;">
+                                                        <small class="text-muted d-block">Current image</small>
+                                                        {% endif %}
+                                                    </div>
+                                                    <input type="file" class="form-control mb-2" id="image{{ item.id }}" name="image" accept="image/*">
+                                                    <input type="hidden" id="autoFetchedUrl{{ item.id }}" name="auto_fetched_url">
+                                                    <small class="text-muted d-block mb-2">Upload a new picture to replace current image</small>
+                                                    <button type="button" class="btn btn-sm btn-secondary" onclick="fetchAndPreviewImage('{{ item.name }}', {{ item.id }})">
+                                                        <i class="fas fa-cloud-download-alt"></i> Fetch Image Preview
+                                                    </button>
+                                                    <small class="text-muted d-block mt-2">Click "Fetch Image Preview" to see image, then "Save Changes" to apply</small>
+                                                </div>
+                                                
+                                                <script>
+                                                function fetchAndPreviewImage(itemName, itemId) {
+                                                    const previewDiv = document.getElementById('imagePreview' + itemId);
+                                                    previewDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Fetching image...';
+                                                    
+                                                    // Fetch from API
+                                                    fetch('/api/fetch-food-image?name=' + encodeURIComponent(itemName))
+                                                        .then(response => response.json())
+                                                        .then(data => {
+                                                            if (data.success && data.url) {
+                                                                previewDiv.innerHTML = '<img src="' + data.url + '" alt="' + itemName + '" style="max-height: 150px; border-radius: 8px;"><small class="text-muted d-block">Preview - Click Save Changes to apply</small>';
+                                                                document.getElementById('autoFetchedUrl' + itemId).value = data.url;
+                                                            } else {
+                                                                previewDiv.innerHTML = '<div class="alert alert-warning">Could not fetch image. Try uploading manually.</div>';
+                                                            }
+                                                        })
+                                                        .catch(error => {
+                                                            previewDiv.innerHTML = '<div class="alert alert-danger">Error fetching image</div>';
+                                                        });
+                                                }
+                                                </script>
+                                                <div class="col-md-12">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" id="is_vegetarian{{ item.id }}" 
+                                                               name="is_vegetarian" {{ 'checked' if item.is_vegetarian else '' }}>
+                                                        <label class="form-check-label" for="is_vegetarian{{ item.id }}">Vegetarian</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" id="is_vegan{{ item.id }}" 
+                                                               name="is_vegan" {{ 'checked' if item.is_vegan else '' }}>
+                                                        <label class="form-check-label" for="is_vegan{{ item.id }}">Vegan</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" id="is_gluten_free{{ item.id }}" 
+                                                               name="is_gluten_free" {{ 'checked' if item.is_gluten_free else '' }}>
+                                                        <label class="form-check-label" for="is_gluten_free{{ item.id }}">Gluten Free</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" id="is_non_veg{{ item.id }}" 
+                                                               name="is_non_veg" {{ 'checked' if item.is_non_veg else '' }}>
+                                                        <label class="form-check-label" for="is_non_veg{{ item.id }}">Non-Veg</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
