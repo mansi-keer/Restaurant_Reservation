@@ -19,6 +19,7 @@ body {
 /* Navbar */
 .navbar {
     background: linear-gradient(135deg, #3d405b 0%, #2b2d42 100%) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
     padding: 1.2rem 0;
     transition: all 0.4s ease;
